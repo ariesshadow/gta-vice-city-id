@@ -15,6 +15,12 @@ An interactive, GTA VI-inspired web application designed for the **Build with Re
 * **Dynamic Overlay Stamps:** Add angled, high-impact overlay text stamps (such as `WANTED`, `BUSTED`, or `VICE CITY P.D.`).
 * **High-Res Export:** Export the finished badge layout into a high-resolution PNG ready for sharing.
 
+## 🌴🌴 New Features
+
+* Real-time 3D WebGL Card Model (built with Three.js)
+* Dual Export Pipeline (High-Res 2D PNG Badge + 4-Second 3D WebM Video Clip)
+* Auto-Resizing Stamp Overlays & 5-Star Wanted Level Logic
+* Multi-Template Styling & Holographic VCPD Seal
 ---
 
 ## 🛠️ Built With
