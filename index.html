@@ -2,212 +2,574 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Vice City Customs // ID Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vice City Customs // 3D ID Studio</title>
   <style>
-    body { background-color: #0a0a12; color: #fff; font-family: 'Segoe UI', Roboto, sans-serif; padding: 24px; margin: 0; }
-    header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ff007f; padding-bottom: 16px; margin-bottom: 24px; }
-    h1 { margin: 0; color: #ff007f; text-shadow: 0 0 12px #ff007f; letter-spacing: 2px; }
-    .btn { background: #ff007f; color: #fff; padding: 10px 18px; font-weight: bold; border-radius: 4px; cursor: pointer; border: none; font-size: 14px; }
-    .btn-export { background: #00f0ff; color: #000; }
-    .grid { display: grid; grid-template-columns: 320px 1fr; gap: 24px; }
-    .card { background: #121224; padding: 20px; border-radius: 8px; border: 1px solid #00f0ff; box-shadow: 0 0 15px rgba(0,240,255,0.1); }
-    input[type="text"] { width: 100%; padding: 8px; margin: 4px 0 14px 0; background: #0a0a12; border: 1px solid #ff007f; color: #fff; border-radius: 4px; box-sizing: border-box; }
-    canvas { width: 100%; height: auto; display: block; border-radius: 6px; border: 1px solid #ff007f; }
+    * { box-sizing: border-box; }
+    body {
+      background-color: #05050b;
+      color: #ffffff;
+      font-family: 'Segoe UI', Roboto, -apple-system, sans-serif;
+      padding: 20px;
+      margin: 0;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ff007f;
+      padding-bottom: 16px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    h1 {
+      margin: 0;
+      color: #ff007f;
+      text-shadow: 0 0 12px #ff007f, 0 0 20px #00f0ff;
+      letter-spacing: 2px;
+      font-size: 26px;
+    }
+    .btn {
+      background: #ff007f;
+      color: #fff;
+      padding: 10px 16px;
+      font-weight: bold;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+      font-size: 13px;
+      box-shadow: 0 0 10px rgba(255,0,127,0.4);
+      transition: all 0.2s ease;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.1); }
+    .btn-export-2d { background: #00f0ff; color: #000; box-shadow: 0 0 10px rgba(0,240,255,0.4); }
+    .btn-export-3d { background: #ffd700; color: #000; box-shadow: 0 0 10px rgba(255,215,0,0.4); }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: 340px 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .panel {
+      background: rgba(16, 16, 33, 0.9);
+      padding: 18px;
+      border-radius: 8px;
+      border: 1px solid #00f0ff;
+      box-shadow: 0 0 15px rgba(0,240,255,0.1);
+      max-height: 85vh;
+      overflow-y: auto;
+    }
+    .panel::-webkit-scrollbar { width: 6px; }
+    .panel::-webkit-scrollbar-thumb { background: #ff007f; border-radius: 4px; }
+    .section-title {
+      color: #ff007f;
+      margin: 14px 0 8px 0;
+      font-size: 12px;
+      letter-spacing: 1px;
+      border-bottom: 1px solid #222244;
+      padding-bottom: 4px;
+      font-weight: bold;
+    }
+    .section-title:first-child { margin-top: 0; }
+    label { font-size: 11px; color: #00f0ff; letter-spacing: 1px; display: block; margin-top: 8px; }
+    input[type="text"], select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      background: #06060c;
+      border: 1px solid #ff007f;
+      color: #fff;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+    input[type="range"] {
+      width: 100%;
+      margin-top: 4px;
+      accent-color: #ff007f;
+    }
+    .star-rating {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .star-btn {
+      background: #06060c;
+      border: 1px solid #ff007f;
+      color: #555;
+      padding: 6px 10px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      flex: 1;
+      text-align: center;
+    }
+    .star-btn.active {
+      color: #ffd700;
+      border-color: #ffd700;
+      text-shadow: 0 0 8px #ffd700;
+      background: #1a1a00;
+    }
+    .canvas-container {
+      background: #030308;
+      border-radius: 8px;
+      border: 1px solid #ff007f;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 0 25px rgba(255,0,127,0.2);
+      position: relative;
+      overflow: hidden;
+      min-height: 580px;
+    }
+    #webgl-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+      cursor: grab;
+    }
+    #webgl-canvas:active { cursor: grabbing; }
+    .hint-tag {
+      position: absolute;
+      bottom: 12px;
+      right: 16px;
+      font-size: 11px;
+      color: #00f0ff;
+      background: rgba(0,0,0,0.75);
+      padding: 4px 10px;
+      border-radius: 12px;
+      border: 1px solid #00f0ff;
+      pointer-events: none;
+    }
   </style>
+
+  <!-- Three.js & OrbitControls from CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
 <body>
+
   <header>
     <div>
-      <h1>VICE CITY CUSTOMS</h1>
-      <p style="color: #00f0ff; margin: 4px 0 0 0; font-size: 13px; letter-spacing: 2px;">// OFFICIAL CRIMINAL RECORD & ID BADGE GENERATOR</p>
+      <h1>VICE CITY CUSTOMS 3D</h1>
+      <p style="color: #00f0ff; margin: 4px 0 0 0; font-size: 12px; letter-spacing: 2px;">
+        // GTA VI OFFICIAL REAL-TIME 3D BADGE & PERMIT STUDIO
+      </p>
     </div>
-    <div style="display: flex; gap: 12px;">
-      <label class="btn">📷 UPLOAD PHOTO <input type="file" id="upload" accept="image/*" style="display:none"></label>
-      <button class="btn btn-export" onclick="exportImage()">💾 EXPORT ID BADGE</button>
+    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <label class="btn" style="margin: 0;">
+        📷 UPLOAD PHOTO
+        <input type="file" id="upload" accept="image/*" style="display:none">
+      </label>
+      <button class="btn btn-export-2d" onclick="export2DImage()">💾 EXPORT 2D BADGE</button>
+      <button class="btn btn-export-3d" id="vid-btn" onclick="export3DVideo()">🎥 EXPORT 3D VIDEO</button>
     </div>
   </header>
 
   <div class="grid">
-    <div class="card">
-      <h3 style="color: #ff007f; margin-top: 0; border-bottom: 1px solid #333; padding-bottom: 8px;">ID BADGE DETAILS</h3>
-      <label style="font-size: 12px; color: #00f0ff;">NAME / ALIAS</label>
-      <input type="text" id="name" value="TOMMY VERCETTI">
+    <!-- LEFT CONTROLS -->
+    <div class="panel">
       
-      <label style="font-size: 12px; color: #00f0ff;">PRIMARY OFFENSE</label>
-      <input type="text" id="crime" value="GRAND THEFT AUTO">
-      
-      <label style="font-size: 12px; color: #00f0ff;">BOUNTY AMOUNT</label>
-      <input type="text" id="bounty" value="$50,000">
+      <div class="section-title">CARD TEMPLATE</div>
+      <select id="template">
+        <option value="vcpd">VCPD Criminal Mugshot Record</option>
+        <option value="fbi">FBI Confidential Clearance</option>
+        <option value="permit">Vice City Customs Permit</option>
+      </select>
 
-      <h3 style="color: #ff007f; border-top: 1px solid #333; padding-top: 12px;">IMAGE ADJUSTMENTS</h3>
-      <label style="font-size: 12px; color: #00f0ff;">BRIGHTNESS</label>
-      <input type="range" id="brightness" min="50" max="150" value="100" style="width: 100%; margin-bottom: 10px;">
-      
-      <label style="font-size: 12px; color: #00f0ff;">SATURATION (NEON)</label>
-      <input type="range" id="saturate" min="0" max="200" value="100" style="width: 100%; margin-bottom: 10px;">
-      
-      <label style="font-size: 12px; color: #00f0ff;">OVERLAY STAMP</label>
-      <input type="text" id="stamp" value="WANTED">
+      <div class="section-title">PRESET AVATAR</div>
+      <select id="presetAvatar">
+        <option value="">Custom Uploaded Photo</option>
+        <option value="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80">Tommy Vercetti Style</option>
+        <option value="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=800&q=80">Lucia Vice City Style</option>
+      </select>
+
+      <div class="section-title">BADGE METADATA</div>
+      <label>ALIAS / NAME</label>
+      <input type="text" id="name" value="TOMMY VERCETTI">
+
+      <label>PRIMARY OFFENSE</label>
+      <input type="text" id="crime" value="GRAND THEFT AUTO">
+
+      <label>BOUNTY AMOUNT</label>
+      <input type="text" id="bounty" value="$150,000">
+
+      <label>WANTED LEVEL (STARS)</label>
+      <div class="star-rating">
+        <button class="star-btn active" onclick="setStars(1)">★</button>
+        <button class="star-btn active" onclick="setStars(2)">★</button>
+        <button class="star-btn active" onclick="setStars(3)">★</button>
+        <button class="star-btn active" onclick="setStars(4)">★</button>
+        <button class="star-btn active" onclick="setStars(5)">★</button>
+      </div>
+
+      <div class="section-title">NEON & IMAGE ADJUSTMENTS</div>
+      <label>BRIGHTNESS</label>
+      <input type="range" id="brightness" min="40" max="160" value="100">
+
+      <label>NEON SATURATION</label>
+      <input type="range" id="saturate" min="0" max="250" value="120">
+
+      <label>CONTRAST</label>
+      <input type="range" id="contrast" min="50" max="150" value="100">
+
+      <div class="section-title">AUTO-RESIZING STAMP OVERLAY</div>
+      <label>STAMP TEXT</label>
+      <input type="text" id="stampText" value="WANTED">
+
+      <label>STAMP COLOR</label>
+      <select id="stampColor">
+        <option value="#ffd700">Gold Star</option>
+        <option value="#ff007f">Magenta Neon</option>
+        <option value="#ff2222">Crimson Red</option>
+        <option value="#00f0ff">Cyan Blue</option>
+      </select>
+
+      <label>STAMP ANGLE (°)</label>
+      <input type="range" id="stampAngle" min="-45" max="45" value="-16">
+
+      <label>STAMP POSITION Y</label>
+      <input type="range" id="stampY" min="-100" max="150" value="70">
+
+      <div class="section-title">3D MODEL CONTROLS</div>
+      <label><input type="checkbox" id="autoRotate" checked> 3D Floating Animation</label>
+      <label><input type="checkbox" id="showSeal" checked> Holographic Seal Watermark</label>
+
     </div>
 
-    <div class="card" style="border-color: #ff007f;">
-      <canvas id="canvas"></canvas>
+    <!-- RIGHT 3D CANVAS PREVIEW CONTAINER -->
+    <div class="panel canvas-container" id="canvas-wrapper">
+      <canvas id="webgl-canvas"></canvas>
+      <div class="hint-tag">🖱️ Click & Drag to Rotate 3D Card</div>
     </div>
   </div>
 
+  <!-- Hidden Offscreen 2D Texture Canvas -->
+  <canvas id="texture-canvas" width="1024" height="640" style="display:none;"></canvas>
+
   <script>
-    const canvas = document.getElementById('canvas');
-    const ctx = canvas.getContext('2d');
+    // --- 1. OFFSCREEN 2D TEXTURE CANVAS ---
+    const texCanvas = document.getElementById('texture-canvas');
+    const ctx = texCanvas.getContext('2d');
     let loadedImage = null;
+    let currentStars = 5;
 
-    canvas.width = 900;
-    canvas.height = 550;
+    function setStars(count) {
+      currentStars = count;
+      const btns = document.querySelectorAll('.star-btn');
+      btns.forEach((btn, index) => {
+        if (index < count) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+      updateTexture();
+    }
 
-    function render() {
-      // 1. Badge Background
-      ctx.fillStyle = '#10101e';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    function render2DTexture() {
+      const template = document.getElementById('template').value;
+      const primaryColor = template === 'fbi' ? '#00f0ff' : (template === 'permit' ? '#ffd700' : '#ff007f');
 
-      // Outer Neon Frame Border
-      ctx.strokeStyle = '#ff007f';
+      ctx.fillStyle = '#0a0a16';
+      ctx.fillRect(0, 0, texCanvas.width, texCanvas.height);
+
+      ctx.strokeStyle = primaryColor;
       ctx.lineWidth = 8;
-      ctx.strokeRect(4, 4, canvas.width - 8, canvas.height - 8);
+      ctx.strokeRect(8, 8, texCanvas.width - 16, texCanvas.height - 16);
 
       ctx.strokeStyle = '#00f0ff';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(12, 12, canvas.width - 24, canvas.height - 24);
+      ctx.lineWidth = 3;
+      ctx.strokeRect(18, 18, texCanvas.width - 36, texCanvas.height - 36);
 
-      // 2. Header Banner
-      ctx.fillStyle = '#ff007f';
-      ctx.fillRect(20, 20, canvas.width - 40, 70);
+      // Header Banner
+      const metalGrad = ctx.createLinearGradient(0, 26, texCanvas.width, 110);
+      if (template === 'permit') {
+        metalGrad.addColorStop(0, '#bf953f'); metalGrad.addColorStop(0.5, '#fcf6ba'); metalGrad.addColorStop(1, '#aa771c');
+      } else if (template === 'fbi') {
+        metalGrad.addColorStop(0, '#0088b3'); metalGrad.addColorStop(0.5, '#e0ffff'); metalGrad.addColorStop(1, '#005580');
+      } else {
+        metalGrad.addColorStop(0, '#b30059'); metalGrad.addColorStop(0.5, '#ff99dd'); metalGrad.addColorStop(1, '#800040');
+      }
+      ctx.fillStyle = metalGrad;
+      ctx.fillRect(26, 26, texCanvas.width - 52, 85);
 
-      ctx.fillStyle = '#ffffff';
-      ctx.font = '900 28px sans-serif';
+      ctx.fillStyle = template === 'permit' ? '#000000' : '#ffffff';
+      ctx.font = '900 30px sans-serif';
       ctx.textAlign = 'left';
-      ctx.fillText('VICE CITY POLICE DEPARTMENT', 40, 62);
+      const headerTitle = template === 'fbi' ? 'FEDERAL BUREAU OF INVESTIGATION' : (template === 'permit' ? 'VICE CITY CUSTOMS PERMIT' : 'VICE CITY POLICE DEPARTMENT');
+      ctx.fillText(headerTitle, 50, 72);
 
-      ctx.fillStyle = '#00f0ff';
-      ctx.font = 'bold 16px sans-serif';
       ctx.textAlign = 'right';
-      ctx.fillText('PERMIT #VC-86049', canvas.width - 40, 62);
+      ctx.fillStyle = template === 'permit' ? '#000000' : '#ffd700';
+      ctx.font = 'bold 26px sans-serif';
+      let starStr = '';
+      for (let i = 0; i < currentStars; i++) starStr += '★ ';
+      ctx.fillText(starStr, texCanvas.width - 50, 72);
 
-      // 3. Photo Container Box (Left side of Card)
-      const photoX = 40;
-      const photoY = 110;
-      const photoW = 340;
-      const photoH = 390;
+      ctx.fillStyle = template === 'permit' ? '#222' : '#000';
+      ctx.font = 'bold 13px sans-serif';
+      ctx.fillText('CLEARANCE LEVEL 5', texCanvas.width - 50, 96);
 
-      ctx.fillStyle = '#05050a';
-      ctx.fillRect(photoX, photoY, photoW, photoH);
+      // Photo Frame
+      const px = 50, py = 135, pw = 400, ph = 460;
+      ctx.fillStyle = '#04040a';
+      ctx.fillRect(px, py, pw, ph);
       ctx.strokeStyle = '#00f0ff';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(photoX, photoY, photoW, photoH);
+      ctx.lineWidth = 3;
+      ctx.strokeRect(px, py, pw, ph);
+
+      ctx.strokeStyle = '#151530';
+      ctx.lineWidth = 1;
+      for (let i = py + 35; i < py + ph; i += 40) {
+        ctx.beginPath(); ctx.moveTo(px, i); ctx.lineTo(px + pw, i); ctx.stroke();
+      }
 
       if (loadedImage) {
         ctx.save();
-        // Crop photo to fit inside photo box cleanly
-        ctx.beginPath();
-        ctx.rect(photoX, photoY, photoW, photoH);
-        ctx.clip();
+        ctx.beginPath(); ctx.rect(px, py, pw, ph); ctx.clip();
 
         const b = document.getElementById('brightness').value;
         const s = document.getElementById('saturate').value;
-        ctx.filter = `brightness(${b}%) saturate(${s}%)`;
+        const c = document.getElementById('contrast').value;
+        ctx.filter = `brightness(${b}%) saturate(${s}%) contrast(${c}%)`;
 
-        // Scale & Center Image in Photo Box
-        const scale = Math.max(photoW / loadedImage.width, photoH / loadedImage.height);
-        const x = photoX + (photoW - loadedImage.width * scale) / 2;
-        const y = photoY + (photoH - loadedImage.height * scale) / 2;
+        const scale = Math.max(pw / loadedImage.width, ph / loadedImage.height);
+        const x = px + (pw - loadedImage.width * scale) / 2;
+        const y = py + (ph - loadedImage.height * scale) / 2;
         ctx.drawImage(loadedImage, x, y, loadedImage.width * scale, loadedImage.height * scale);
         ctx.restore();
       } else {
         ctx.fillStyle = '#00f0ff';
-        ctx.font = 'bold 16px sans-serif';
+        ctx.font = 'bold 18px sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('📷 UPLOAD PORTRAIT PHOTO', photoX + photoW / 2, photoY + photoH / 2);
+        ctx.fillText('📷 UPLOAD PORTRAIT PHOTO', px + pw / 2, py + ph / 2);
       }
 
-      // 4. Right Side: Badge Information Text
-      const infoX = 410;
+      // Holographic Seal
+      if (document.getElementById('showSeal').checked) {
+        ctx.save();
+        ctx.strokeStyle = 'rgba(0, 240, 255, 0.35)';
+        ctx.lineWidth = 3;
+        ctx.beginPath(); ctx.arc(px + pw - 70, py + 70, 45, 0, Math.PI * 2); ctx.stroke();
+        ctx.fillStyle = 'rgba(0, 240, 255, 0.3)';
+        ctx.font = 'bold 11px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('OFFICIAL VCPD', px + pw - 70, py + 68);
+        ctx.fillText('SEAL 1986', px + pw - 70, py + 82);
+        ctx.restore();
+      }
 
+      // Metadata
+      const ix = 480;
       ctx.textAlign = 'left';
-      ctx.fillStyle = '#00f0ff';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.fillText('SUBJECT ALIAS', infoX, 135);
+      ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 15px sans-serif'; ctx.fillText('SUBJECT ALIAS / NAME', ix, 170);
+      ctx.fillStyle = '#ffffff'; ctx.font = '900 36px sans-serif'; ctx.fillText((document.getElementById('name').value || 'UNKNOWN').toUpperCase(), ix, 212);
+
+      ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 15px sans-serif'; ctx.fillText('PRIMARY OFFENSE', ix, 265);
+      ctx.fillStyle = primaryColor; ctx.font = 'bold 26px sans-serif'; ctx.fillText((document.getElementById('crime').value || 'NONE').toUpperCase(), ix, 300);
+
+      ctx.fillStyle = '#00f0ff'; ctx.font = 'bold 15px sans-serif'; ctx.fillText('ACTIVE BOUNTY OFFERED', ix, 355);
+      ctx.fillStyle = '#ffd700'; ctx.font = '900 42px sans-serif'; ctx.fillText((document.getElementById('bounty').value || '$0').toUpperCase(), ix, 405);
 
       ctx.fillStyle = '#ffffff';
-      ctx.font = '900 32px sans-serif';
-      const nameVal = document.getElementById('name').value.toUpperCase();
-      ctx.fillText(nameVal || 'UNKNOWN', infoX, 172);
-
-      ctx.fillStyle = '#00f0ff';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.fillText('PRIMARY OFFENSE', infoX, 220);
-
-      ctx.fillStyle = '#ff007f';
-      ctx.font = 'bold 22px sans-serif';
-      const crimeVal = document.getElementById('crime').value.toUpperCase();
-      ctx.fillText(crimeVal || 'NONE', infoX, 252);
-
-      ctx.fillStyle = '#00f0ff';
-      ctx.font = 'bold 14px sans-serif';
-      ctx.fillText('BOUNTY OFFERED', infoX, 300);
-
-      ctx.fillStyle = '#ffd700';
-      ctx.font = '900 36px sans-serif';
-      const bountyVal = document.getElementById('bounty').value.toUpperCase();
-      ctx.fillText(bountyVal || '$0', infoX, 342);
-
-      // 5. Decorative Barcode at Bottom Right
-      ctx.fillStyle = '#ffffff';
-      for (let i = 0; i < 30; i++) {
-        const barWidth = (i % 3 === 0) ? 5 : 2;
-        ctx.fillRect(infoX + (i * 12), 430, barWidth, 40);
+      for (let i = 0; i < 34; i++) {
+        const barW = (i % 3 === 0) ? 6 : 2;
+        ctx.fillRect(ix + (i * 15), 500, barW, 50);
       }
-      ctx.font = '12px monospace';
-      ctx.fillStyle = '#888888';
-      ctx.fillText('VCPD-SECURITY-CLEARANCE-LEVEL-4', infoX, 488);
+      ctx.font = '12px monospace'; ctx.fillStyle = '#666688'; ctx.fillText('SECURITY-CHECKSUM-VC86049-OFFICIAL', ix, 575);
 
-      // 6. Overlay Stamp (Angled text across the photo)
-      const stamp = document.getElementById('stamp').value;
+      // Stamp Overlay
+      const stamp = document.getElementById('stampText').value.toUpperCase();
+      const stampCol = document.getElementById('stampColor').value;
+      const stampAngle = parseFloat(document.getElementById('stampAngle').value);
+      const stampYOffset = parseFloat(document.getElementById('stampY').value);
+
       if (stamp) {
         ctx.save();
-        ctx.translate(photoX + photoW / 2, photoY + photoH / 2 + 80);
-        ctx.rotate(-18 * Math.PI / 180);
+        ctx.font = '900 38px sans-serif';
+        const textMetrics = ctx.measureText(stamp);
+        const boxWidth = textMetrics.width + 50;
+        const boxHeight = 65;
 
-        ctx.strokeStyle = '#ff007f';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(-130, -35, 260, 60);
+        ctx.translate(px + pw / 2, py + ph / 2 + stampYOffset);
+        ctx.rotate(stampAngle * Math.PI / 180);
 
-        ctx.fillStyle = '#ff007f';
-        ctx.font = '900 36px sans-serif';
+        ctx.fillStyle = 'rgba(6, 6, 12, 0.88)';
+        ctx.fillRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
+        ctx.strokeStyle = stampCol;
+        ctx.lineWidth = 5;
+        ctx.strokeRect(-boxWidth / 2, -boxHeight / 2, boxWidth, boxHeight);
+
+        ctx.fillStyle = stampCol;
         ctx.textAlign = 'center';
-        ctx.fillText(stamp.toUpperCase(), 0, 8);
+        ctx.shadowColor = '#000';
+        ctx.shadowBlur = 10;
+        ctx.fillText(stamp, 0, 12);
         ctx.restore();
       }
     }
 
+
+    // --- 2. THREE.JS 3D SCENE SETUP ---
+    const container = document.getElementById('canvas-wrapper');
+    const glCanvas = document.getElementById('webgl-canvas');
+
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x05050b);
+
+    const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
+    camera.position.set(0, 0, 7.5);
+
+    const renderer = new THREE.WebGLRenderer({ canvas: glCanvas, antialias: true, preserveDrawingBuffer: true });
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+    const controls = new THREE.OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.05;
+    controls.maxDistance = 12;
+    controls.minDistance = 4;
+
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+    scene.add(ambientLight);
+
+    const pinkLight = new THREE.PointLight(0xff007f, 2, 20);
+    pinkLight.position.set(-5, 4, 5);
+    scene.add(pinkLight);
+
+    const cyanLight = new THREE.PointLight(0x00f0ff, 2, 20);
+    cyanLight.position.set(5, -4, 5);
+    scene.add(cyanLight);
+
+    render2DTexture();
+    const cardTexture = new THREE.CanvasTexture(texCanvas);
+    cardTexture.minFilter = THREE.LinearFilter;
+
+    const geometry = new THREE.BoxGeometry(4.2, 2.625, 0.08);
+
+    const sideMaterial = new THREE.MeshStandardMaterial({ color: 0x111122, roughness: 0.2, metalness: 0.8 });
+    const frontMaterial = new THREE.MeshStandardMaterial({ map: cardTexture, roughness: 0.3, metalness: 0.1 });
+    const backMaterial = new THREE.MeshStandardMaterial({ color: 0x0a0a14, roughness: 0.4, metalness: 0.5 });
+
+    const materials = [
+      sideMaterial, sideMaterial, sideMaterial, sideMaterial,
+      frontMaterial, backMaterial
+    ];
+
+    const cardMesh = new THREE.Mesh(geometry, materials);
+    scene.add(cardMesh);
+
+    function updateTexture() {
+      render2DTexture();
+      cardTexture.needsUpdate = true;
+    }
+
+    function animate() {
+      requestAnimationFrame(animate);
+      
+      if (document.getElementById('autoRotate').checked) {
+        cardMesh.rotation.y = Math.sin(Date.now() * 0.001) * 0.25;
+        cardMesh.rotation.x = Math.cos(Date.now() * 0.0012) * 0.1;
+      }
+      
+      controls.update();
+      renderer.render(scene, camera);
+    }
+    animate();
+
+    window.addEventListener('resize', () => {
+      const w = container.clientWidth;
+      const h = container.clientHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
+    });
+
+
+    // --- 3. EVENT LISTENERS & EXPORTS ---
     document.getElementById('upload').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (file) {
         const img = new Image();
-        img.onload = () => { loadedImage = img; render(); };
+        img.onload = () => { loadedImage = img; updateTexture(); };
         img.src = URL.createObjectURL(file);
       }
     });
 
-    ['name', 'crime', 'bounty', 'brightness', 'saturate', 'stamp'].forEach(id => {
-      document.getElementById(id).addEventListener('input', render);
+    document.getElementById('presetAvatar').addEventListener('change', (e) => {
+      const url = e.target.value;
+      if (url) {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => { loadedImage = img; updateTexture(); };
+        img.src = url;
+      }
     });
 
-    function exportImage() {
+    ['name', 'crime', 'bounty', 'brightness', 'saturate', 'contrast', 'stampText', 'stampColor', 'stampAngle', 'stampY', 'template', 'showSeal'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateTexture);
+    });
+
+    function playShutter() {
+      try {
+        const ctxAudio = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctxAudio.createOscillator();
+        const gain = ctxAudio.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(800, ctxAudio.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(100, ctxAudio.currentTime + 0.08);
+        gain.gain.setValueAtTime(0.3, ctxAudio.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctxAudio.currentTime + 0.08);
+        osc.connect(gain); gain.connect(ctxAudio.destination);
+        osc.start(); osc.stop(ctxAudio.currentTime + 0.08);
+      } catch(e){}
+    }
+
+    // 1. Export Original Flat 2D Badge Image
+    function export2DImage() {
+      playShutter();
+      render2DTexture();
       const link = document.createElement('a');
-      link.download = `${document.getElementById('name').value.toLowerCase().replace(/\s+/g, '-')}-vice-id.png`;
-      link.href = canvas.toDataURL('image/png');
+      link.download = `${(document.getElementById('name').value || 'vice-id').toLowerCase().replace(/\s+/g, '-')}-flat-badge.png`;
+      link.href = texCanvas.toDataURL('image/png');
       link.click();
     }
 
-    render();
+    // 2. Export 3D Video Clip (4-Second WebM)
+    function export3DVideo() {
+      const vidBtn = document.getElementById('vid-btn');
+      vidBtn.innerText = '🔴 RECORDING (4s)...';
+      vidBtn.disabled = true;
+
+      const stream = glCanvas.captureStream(30);
+      const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+      const chunks = [];
+
+      mediaRecorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data);
+      };
+
+      mediaRecorder.onstop = () => {
+        const blob = new Blob(chunks, { type: 'video/webm' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.download = `${(document.getElementById('name').value || 'vice-id').toLowerCase().replace(/\s+/g, '-')}-3d-animation.webm`;
+        link.href = url;
+        link.click();
+
+        vidBtn.innerText = '🎥 EXPORT 3D VIDEO';
+        vidBtn.disabled = false;
+      };
+
+      mediaRecorder.start();
+      setTimeout(() => {
+        mediaRecorder.stop();
+      }, 4000);
+    }
   </script>
 </body>
 </html>
